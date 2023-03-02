@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import time
-from selenium import webdriver
+from selenium import webdriver, common
 from selenium.webdriver.edge.service import Service
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 from webdriver_manager.chrome import ChromeDriverManager
@@ -86,6 +86,8 @@ class xls_generate:
 
             soup = BeautifulSoup(htmldemo, 'lxml')
             ahrefs = soup.find_all('tbody')
+            if len(ahrefs) == 0:
+                return {"filename": "err", "reason": "活动数据获取信息异常，请检查是否已开启EasyConnect及网络连接是否正常。"}
             trs = ahrefs[0].find_all('tr')
 
             OALists = []
@@ -268,7 +270,7 @@ def main():
             except:
                 print("输入错误，请重新输入！")
 
-        print("正在启动浏览器，请稍候……\n(若先前未安装必要的前置程序，在此将自动下载并安装，请等待安装完成)\n=====================\n启动浏览器后，在报告未完成生成操作前，请勿关闭命令行及缩小浏览器窗口。")
+        print("正在启动浏览器，请稍候……\n(若先前未安装必要的前置程序，在此将自动下载并安装，请等待安装完成)\n=====================\n启动浏览器后，在报告未完成生成操作前，请勿关闭命令行、最小化或关闭浏览器窗口。")
         if browser == 1:
             options = webdriver.EdgeOptions()
             options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -301,8 +303,7 @@ def main():
                 with open("data.txt", "r", encoding="utf-8") as f:
                     content = f.read()
             except Exception as e:
-                traceback.print_exc()
-                print("文件读取失败，请检查文件是否存在并重新运行。")
+                print("文件读取失败，请检查文件是否存在、编码是否为utf-8并重新运行。")
                 input("按回车键可退出程序。")
                 return
         
@@ -325,6 +326,8 @@ def main():
             print("生成失败。原因："+data["reason"])
         else:
             print("生成成功。文件名："+data["filename"]+"。已保存在本程序所在目录下。")
+    except common.exceptions.NoSuchWindowException:
+        print("浏览器窗口已关闭，无法获取信息。")
     except:
         print("捕获到了意料之外的异常，如有疑问可附带报错信息提交issue。")
         traceback.print_exc()
