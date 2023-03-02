@@ -92,7 +92,7 @@ class xls_generate:
             applyOAList = []
             for i in range(0, len(trs)):
                 tds = trs[i].find_all('td')
-                json_data = {'oa': 0, 'title': '', 'acTime': '', 'catagory': '', 'status': '', 'scoreA': '', 'scoreB': ''}
+                json_data = {'oa': 0, 'title': '', 'acTime': '', 'catagory': '', 'status': '', 'scoreA': 0, 'scoreB': 0}
                 for j in range(1, len(tds)-1):
                     if j == 1:
                         try:
@@ -103,7 +103,7 @@ class xls_generate:
                             OALists.append('1000100')
                         json_data['title'] = tds[j].get_text().replace('\n', '').replace('\t', '').replace('\r', '')
                     elif j == 2:
-                        json_data['catagory'] = tds[j].get_text().replace('\n', '').replace('\t', '').replace('\r', '')
+                        json_data['catagory'] = tds[j].get_text().replace('\n', '').replace('\t', '').replace('\r', '').replace('...', '')
                     elif j == 3:
                         json_data['acTime'] = tds[j].get_text().replace('\n', '').replace('\t', '').replace('\r', '')
                     elif j == 4:
@@ -135,10 +135,17 @@ class xls_generate:
                 scoreA = eval(tds[4].get_text().replace('\n', '').replace('\t', '').replace('\r', ''))
                 scoreB = eval(tds[5].get_text().replace('\n', '').replace('\t', '').replace('\r', ''))
                 if scoreA != 0:
-                    applyOAList[knowWhere]['scoreA'] = scoreA
+                    applyOAList[knowWhere]['scoreA'] = scoreA + applyOAList[knowWhere]['scoreA']
                 if scoreB != 0:
-                    applyOAList[knowWhere]['scoreB'] = scoreB
+                    applyOAList[knowWhere]['scoreB'] = scoreB + applyOAList[knowWhere]['scoreB']
                 applyOAList[knowWhere]['title'] = tds[0].get_text().replace('\n', '').replace('\t', '').replace('\r', '')
+                applyOAList[knowWhere]['catagory'] = tds[1].get_text().replace('\n', '').replace('\t', '').replace('\r', '')
+
+            for i in range(0, len(applyOAList)):
+                if applyOAList[i]['scoreA'] == 0:
+                    applyOAList[i]['scoreA'] = ''
+                if applyOAList[i]['scoreB'] == 0:
+                    applyOAList[i]['scoreB'] = ''
 
             wk = xlwt.Workbook()
             times = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
@@ -184,18 +191,18 @@ class xls_generate:
             sheet2.write(9, 0, "安全文明", self.centerStyle())
             sheet2.write(3, 1, "得分A", self.centerStyle())
             sheet2.write(3, 2, "得分B", self.centerStyle())
-            sheet2.write(4, 1, xlwt.Formula(f'SUMIF(oaApplyList!$C$2:$C${len(applyOAList)+1},"志愿公益",oaApplyList!$F$2:$F${len(applyOAList)+1})'), self.get_style())
+            sheet2.write(4, 1, xlwt.Formula(f'SUMIF(oaApplyList!$C$2:$C${len(applyOAList)+5},"志愿公益",oaApplyList!$F$2:$F${len(applyOAList)+5})'), self.get_style())
             sheet2.write(4, 2, "", self.get_style())
-            sheet2.write(5, 1, xlwt.Formula(f'SUMIF(oaApplyList!$C$2:$C${len(applyOAList)+1},"创新创业创意",oaApplyList!$F$2:$F${len(applyOAList)+1})'), self.get_style())
+            sheet2.write(5, 1, xlwt.Formula(f'SUMIF(oaApplyList!$C$2:$C${len(applyOAList)+5},"创新创业创意",oaApplyList!$F$2:$F${len(applyOAList)+5})'), self.get_style())
             sheet2.write(5, 2, "", self.get_style())
-            sheet2.write(6, 1, xlwt.Formula(f'SUMIF(oaApplyList!$C$2:$C${len(applyOAList)+1},"讲座报告",oaApplyList!$F$2:$F${len(applyOAList)+1})'), self.get_style())
-            sheet2.write(6, 2, xlwt.Formula(f'SUMIF(oaApplyList!$C$2:$C${len(applyOAList)+1},"主题教育",oaApplyList!$F$2:$F${len(applyOAList)+1})'), self.get_style())
-            sheet2.write(7, 1, xlwt.Formula(f'SUMIF(oaApplyList!$C$2:$C${len(applyOAList)+1},"校园文化活动",oaApplyList!$F$2:$F${len(applyOAList)+1})'), self.get_style())
-            sheet2.write(7, 2, xlwt.Formula(f'SUMIF(oaApplyList!$C$2:$C${len(applyOAList)+1},"校园文化竞赛活动",oaApplyList!$F$2:$F${len(applyOAList)+1})'), self.get_style())
-            sheet2.write(8, 1, xlwt.Formula(f'SUMIF(oaApplyList!$C$2:$C${len(applyOAList)+1},"社会实践",oaApplyList!$F$2:$F${len(applyOAList)+1})'), self.get_style())
+            sheet2.write(6, 1, xlwt.Formula(f'SUMIF(oaApplyList!$C$2:$C${len(applyOAList)+5},"讲座报告",oaApplyList!$F$2:$F${len(applyOAList)+5})'), self.get_style())
+            sheet2.write(6, 2, xlwt.Formula(f'SUMIF(oaApplyList!$C$2:$C${len(applyOAList)+5},"主题教育",oaApplyList!$F$2:$F${len(applyOAList)+5})'), self.get_style())
+            sheet2.write(7, 1, xlwt.Formula(f'SUMIF(oaApplyList!$C$2:$C${len(applyOAList)+5},"校园文化活动",oaApplyList!$F$2:$F${len(applyOAList)+5})'), self.get_style())
+            sheet2.write(7, 2, xlwt.Formula(f'SUMIF(oaApplyList!$C$2:$C${len(applyOAList)+5},"校园文化竞赛活动",oaApplyList!$F$2:$F${len(applyOAList)+5})'), self.get_style())
+            sheet2.write(8, 1, xlwt.Formula(f'SUMIF(oaApplyList!$C$2:$C${len(applyOAList)+5},"社会实践",oaApplyList!$F$2:$F${len(applyOAList)+5})'), self.get_style())
             sheet2.write(8, 2, "", self.get_style())
-            sheet2.write(9, 1, xlwt.Formula(f'SUMIF(oaApplyList!$C$2:$C${len(applyOAList)+1},"校园文明",oaApplyList!$F$2:$F${len(applyOAList)+1})'), self.get_style())
-            sheet2.write(9, 2, xlwt.Formula(f'SUMIF(oaApplyList!$C$2:$C${len(applyOAList)+1},"安全教育网络教学",oaApplyList!$F$2:$F${len(applyOAList)+1})'), self.get_style())
+            sheet2.write(9, 1, xlwt.Formula(f'SUMIF(oaApplyList!$C$2:$C${len(applyOAList)+5},"校园文明",oaApplyList!$F$2:$F${len(applyOAList)+5})'), self.get_style())
+            sheet2.write(9, 2, xlwt.Formula(f'SUMIF(oaApplyList!$C$2:$C${len(applyOAList)+5},"安全教育网络教学",oaApplyList!$F$2:$F${len(applyOAList)+5})'), self.get_style())
             sheet2.write(3, 3, "总需得分", self.centerStyle())
             sheet2.write(4, 3, 1, self.get_style())
             sheet2.write(5, 3, 1.5, self.get_style())
@@ -236,8 +243,9 @@ class xls_generate:
             sheet2.write(2, 8, "1.本报表由系统自动生成，数据仅供参考。")
             sheet2.write(3, 8, "2.报表中的“总需得分”按照以下标准计算：主题报告1.5分、社会实践2分、创新创业创意1.5分、校园安全文明1分、志愿公益1分、校园文化1分，共计8学分。")
             sheet2.write(4, 8, "3.报表中的部分值若为空，请启用编辑功能后即可看到对应数据。")
-            sheet2.write(1, 8, "注：")
-            sheet2.write(2, 8, "1.OA号为1000100的代表无法获得该活动的OA号信息。")
+            sheet2.write(5, 8, "4.所有数据来源均仅来自第二课堂平台，信息、报表生成等仅在本地处理，从未有任何数据被上传至任何服务器。")
+            sheet1.write(1, 8, "注：")
+            sheet1.write(2, 8, "1.OA号为1000100的代表无法获得该活动的OA号信息。")
             saveFileName = f"{person_info['usercode']}-{time.strftime('%Y%m%d%H%M%S')}-{str(uuid.uuid1())[:8] + str(uuid.uuid4())[9:13] + str(uuid.uuid4())[14:18] + str(uuid.uuid1())[19:23] + str(uuid.uuid4())[-12:]}.xls"
             wk.save(f"./{saveFileName}")
             return {"filename": saveFileName}
@@ -248,11 +256,12 @@ class xls_generate:
 
 def main():
     try:
-        print("本程序支持的浏览器有：\n1. Edge（推荐）\n2. Chrome\n3. Firefox")
+        print("本程序支持的浏览器有：\n1. Edge（推荐）\n2. Chrome\n3. Firefox\n9. 文件读取（需自备data.txt文件，调试用）\n============\n*使用浏览器读取前，请先登入EasyConnect。")
         while True:
             try:
-                browser = int(input("请选择浏览器(1-3)："))
-                if browser in [1, 2, 3]:
+                browser = int(input("请选择浏览器(1-3,9)："))
+                # browser = 9
+                if browser in [1, 2, 3, 9]:
                     break
                 else:
                     print("输入错误，请重新输入！")
@@ -287,17 +296,30 @@ def main():
             # options.add_argument('log-level=3')
             # driver = webdriver.Ie(options=options, service=Service(IEDriverManager().install()))
             pass
+        elif browser == 9:
+            try:
+                with open("data.txt", "r", encoding="utf-8") as f:
+                    content = f.read()
+            except Exception as e:
+                traceback.print_exc()
+                print("文件读取失败，请检查文件是否存在并重新运行。")
+                input("按回车键可退出程序。")
+                return
+        
+        if browser != 9:
+            print("浏览器已启动，请在弹出的浏览器中输入OA账号密码登录。完成后按回车键继续。")
+            driver.maximize_window()
+            driver.get("https://authserver.sit.edu.cn/authserver/login?service=http%3A%2F%2Fsc.sit.edu.cn%2F")
+            input(">>>按回车键继续>>>")
+            driver.get("http://sc.sit.edu.cn/public/pcenter/activityOrderList.action?pageNo=1&pageSize=1000")
+            time.sleep(5)
+            content = driver.page_source + "\n<!-- -*- -*- split -*- -*- -->\n" 
+            driver.get("http://sc.sit.edu.cn/public/pcenter/scoreDetail.action?pageNo=1&pageSize=1000")
+            time.sleep(5)
+            content = content + driver.page_source
+            print("数据获取完成，即将关闭浏览器。")
+            driver.quit()
 
-        print("浏览器已启动，请在弹出的浏览器中输入OA账号密码登录。完成后按回车键继续。")
-        driver.maximize_window()
-        driver.get("https://authserver.sit.edu.cn/authserver/login?service=http%3A%2F%2Fsc.sit.edu.cn%2F")
-        input(">>>按回车键继续>>>")
-        driver.get("http://sc.sit.edu.cn/public/pcenter/activityOrderList.action?pageNo=1&pageSize=1000")
-        content = driver.page_source + "\n<!-- -*- -*- split -*- -*- -->\n" 
-        driver.get("http://sc.sit.edu.cn/public/pcenter/scoreDetail.action?pageNo=1&pageSize=1000")
-        content = content + driver.page_source
-        print("数据获取完成，即将关闭浏览器。")
-        driver.quit()
         data = xls_generate().main(content)
         if data["filename"] == "err":
             print("生成失败。原因："+data["reason"])
