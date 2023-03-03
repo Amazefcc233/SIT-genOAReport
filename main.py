@@ -88,7 +88,14 @@ class xls_generate:
             ahrefs = soup.find_all('tbody')
             if len(ahrefs) == 0:
                 return {"filename": "err", "reason": "活动数据获取信息异常，请检查是否已开启EasyConnect及网络连接是否正常。"}
-            trs = ahrefs[0].find_all('tr')
+            
+            cnt = 0
+            for i in range(0, len(ahrefs)):
+                if not ('aui_' in str(ahrefs[i])):
+                    break
+                cnt += 1
+
+            trs = ahrefs[cnt].find_all('tr')
 
             OALists = []
             applyOAList = []
@@ -119,8 +126,14 @@ class xls_generate:
 
             soup = BeautifulSoup(htmldemo, 'lxml')
             ahrefs = soup.find_all('tbody')
+            
+            cnt = 0
+            for i in range(0, len(ahrefs)):
+                if not ('aui_' in str(ahrefs[i])):
+                    break
+                cnt += 1
 
-            trs = ahrefs[0].find_all('tr')
+            trs = ahrefs[cnt].find_all('tr')
             person_info = {'usercode': '', 'username': ''}
             for i in range(0, len(trs)):
                 tds = trs[i].find_all('td')
@@ -130,7 +143,7 @@ class xls_generate:
                     elif "姓名：" in tds[j].text:
                         person_info['username'] = tds[j].text.replace('姓名：', '')
 
-            trs = ahrefs[1].find_all('tr')
+            trs = ahrefs[cnt+1].find_all('tr')
             for i in range(0, len(trs)):
                 tds = trs[i].find_all('td')
                 knowWhere = OALists.index(tds[2].get_text().replace('\n', '').replace('\t', '').replace('\r', ''))
@@ -253,6 +266,9 @@ class xls_generate:
             return {"filename": saveFileName}
         except Exception as e:
             traceback.print_exc()
+            # needReadStr = needReadStr.replace(person_info['usercode'], "Err").replace(person_info['username'], "出现异常，如有需要可提交issue.")
+            # with open("data.txt", "w", encoding="utf-8") as f:
+            #     f.write(needReadStr)
             return {"filename": "err", "reason": "捕获到了意料之外的异常，如有疑问可附带报错信息提交issue。"}
 
 
