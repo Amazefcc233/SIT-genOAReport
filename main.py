@@ -13,6 +13,8 @@ import uuid
 from bs4 import BeautifulSoup
 import traceback
 import re
+import getopt
+import sys
 
 class xls_generate:
     def __init__(self) -> None:
@@ -78,6 +80,7 @@ class xls_generate:
     def main(self, needReadStr):
         try:
             print("开始生成报告，请等待...")
+
             text = needReadStr.split("<!-- -*- -*- split -*- -*- -->")
 
             htmldemo = text[0].replace('<br>', '').replace('<br />', '').replace('&nbsp;', ' ')
@@ -143,6 +146,12 @@ class xls_generate:
                     elif "姓名：" in tds[j].text:
                         person_info['username'] = tds[j].text.replace('姓名：', '')
 
+            global debug_mode
+            if debug_mode:
+                needReadStr = needReadStr.replace(person_info['usercode'], "DEBUGINFO").replace(person_info['username'], f"{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}")
+                with open("data.txt", "w", encoding="utf-8") as f:
+                    f.write(needReadStr)
+                    
             trs = ahrefs[cnt+1].find_all('tr')
             for i in range(0, len(trs)):
                 tds = trs[i].find_all('td')
@@ -266,13 +275,22 @@ class xls_generate:
             return {"filename": saveFileName}
         except Exception as e:
             traceback.print_exc()
-            # needReadStr = needReadStr.replace(person_info['usercode'], "Err").replace(person_info['username'], "出现异常，如有需要可提交issue.")
-            # with open("data.txt", "w", encoding="utf-8") as f:
-            #     f.write(needReadStr)
             return {"filename": "err", "reason": "捕获到了意料之外的异常，如有疑问可附带报错信息提交issue。"}
 
 
 def main():
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "", ["save-file"])
+        for opt, arg in opts:
+            if opt in ("--save-file", "--help"):
+                print('调试模式已开启。获取数据后，所得数据将会被放置在所在文件夹的data.txt中。')
+                global debug_mode
+                debug_mode = True
+    except getopt.GetoptError:
+        pass
+    except:
+        pass
+
     try:
         print("本程序支持的浏览器有：\n1. Edge（推荐）\n2. Chrome\n3. Firefox\n9. 文件读取（需自备data.txt文件，调试用）\n============\n*使用浏览器读取前，请先登入EasyConnect。")
         while True:
@@ -348,6 +366,8 @@ def main():
         print("捕获到了意料之外的异常，如有疑问可附带报错信息提交issue。")
         traceback.print_exc()
     input("按回车键可退出程序。")
+
+debug_mode = False
 
 if __name__ == '__main__':
     main()
