@@ -342,15 +342,28 @@ def main():
                 return
         
         if browser != 9:
-            print("浏览器已启动，请在弹出的浏览器中输入OA账号密码登录。完成后按回车键继续。")
+            print("浏览器即将启动，请在弹出的浏览器中输入OA账号密码登录。登录后，系统将自动开始获取数据。")
+            print("如果超过60秒未能检测到正常登录，请手动按回车键继续。")
+            time.sleep(1)
             driver.maximize_window()
             driver.get("https://authserver.sit.edu.cn/authserver/login?service=http%3A%2F%2Fsc.sit.edu.cn%2F")
-            input(">>>按回车键继续>>>")
+            timing = int(time.time())
+            while True:
+                if 'authserver.sit.edu.cn' not in driver.current_url and 'sc.sit.edu.cn' in driver.current_url:
+                    time.sleep(3)
+                    if 'authserver.sit.edu.cn' not in driver.current_url and 'sc.sit.edu.cn' in driver.current_url:
+                        break
+                elif time.time() - timing > 60:
+                    input(">>>登录检测超时，请在登录后手动按回车键继续>>>")
+                    break
+                time.sleep(1)
             driver.get("http://sc.sit.edu.cn/public/pcenter/activityOrderList.action?pageNo=1&pageSize=1000")
-            time.sleep(5)
+            # time.sleep(5)
+            driver.implicitly_wait(5)
             content = driver.page_source + "\n<!-- -*- -*- split -*- -*- -->\n" 
             driver.get("http://sc.sit.edu.cn/public/pcenter/scoreDetail.action?pageNo=1&pageSize=1000")
-            time.sleep(5)
+            # time.sleep(5)
+            driver.implicitly_wait(5)
             content = content + driver.page_source
             print("数据获取完成，即将关闭浏览器。")
             driver.quit()
