@@ -375,6 +375,8 @@ def main():
             print("生成成功。文件名："+data["filename"]+"。已保存在本程序所在目录下。")
     except common.exceptions.NoSuchWindowException:
         print("浏览器窗口已关闭，无法获取信息。")
+    except common.exceptions.SessionNotCreatedException:
+        print("启动浏览器超时，请重新启动再试一次。若多次发生此问题，请更换浏览器再试或提交issue。")
     except:
         print("捕获到了意料之外的异常，如有疑问可附带报错信息提交issue。")
         traceback.print_exc()
